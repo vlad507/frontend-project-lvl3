@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const createDiv = () => {
   const div = document.createElement('div');
   div.classList.add('jumbotron');
-  div.innerHTML = 'Hello, world!';
+  div.innerHTML = 'Hello, world!2';
   const button = document.createElement('a');
   button.classList.add('btn', 'btn-primary', 'btn-lg');
   button.setAttribute('href', '#');

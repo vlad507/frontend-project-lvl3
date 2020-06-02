@@ -1,7 +1,7 @@
+develop:
+				npx webpack-dev-server
 install:
 				npm install
-link:
-				sudo npm link
 build:
 				npx webpack
 publish:

@@ -2,7 +2,7 @@ install:
 				npm install
 link:
 				sudo npm link
-webpack:
+build:
 				npx webpack
 publish:
 				npm publish --dry-run

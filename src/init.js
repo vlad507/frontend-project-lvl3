@@ -2,7 +2,7 @@
 import * as yup from 'yup';
 import { isEqual } from 'lodash';
 import handlerRSS from './handler';
-import watcher from './watchers';
+import { formWatcher, postWatcher } from './watchers';
 
 const schema = yup.string().required().url();
 
@@ -40,7 +40,9 @@ const app = () => {
 
   const form = document.querySelector('[data-form="rss-form"');
 
-  const watchedState = watcher(form, state);
+  const watchedState = formWatcher(form, state);
+
+  const watchedPosts = postWatcher(state);
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -52,7 +54,7 @@ const app = () => {
       console.log('in state of validForm');
       const inputElement = form.firstChild;
       inputElement.value = '';
-      handlerRSS(state);
+      handlerRSS(watchedPosts);
     }
   });
 };

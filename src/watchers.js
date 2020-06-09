@@ -1,5 +1,6 @@
 import onChange from 'on-change';
 import { isEqual } from 'lodash';
+import rendorPosts from './renders';
 
 const rendorErrors = (formElement, errors) => {
   const errorElement = formElement.nextElementSibling;
@@ -18,7 +19,7 @@ const rendorErrors = (formElement, errors) => {
   formElement.after(errorMessageElement);
 };
 
-const watcher = (form, state) => {
+const formWatcher = (form, state) => {
   const watch = onChange(state, (path) => {
     if (path === 'form.errors') {
       rendorErrors(form, state.form.errors);
@@ -27,4 +28,13 @@ const watcher = (form, state) => {
   return watch;
 };
 
-export default watcher;
+const postWatcher = (state) => {
+  const watchPosts = onChange(state, (path) => {
+    if (path === 'posts') {
+      rendorPosts(state.posts);
+    }
+  });
+  return watchPosts;
+};
+
+export { formWatcher, postWatcher };

@@ -1,4 +1,4 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import createDiv from './init';
+import app from './init';
 
-createDiv();
+app();

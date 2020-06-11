@@ -51,7 +51,6 @@ const app = () => {
     state.form.url = url;
     updateValodationOfUrl(watchedState);
     if (state.form.validOfForm) {
-      console.log('in state of validForm');
       const inputElement = form.firstChild;
       inputElement.value = '';
       handlerRSS(watchedPosts);

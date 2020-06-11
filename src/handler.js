@@ -1,9 +1,17 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
 import { differenceBy } from 'lodash';
-import isUrlAdded from './utils';
 
 const cors = 'https://cors-anywhere.herokuapp.com';
+
+const parser = (responseData, url) => {
+  const domParser = new DOMParser();
+  const doc = domParser.parseFromString(responseData, 'text/xml');
+  const title = doc.querySelector('title').textContent;
+  const description = doc.querySelector('description').textContent;
+  const items = doc.querySelectorAll('item');
+  return [{ title, description, url }, items];
+};
 
 const handlerRSS = (state) => {
   const newURL = new URL(`/${state.form.url}`, cors);
@@ -11,28 +19,23 @@ const handlerRSS = (state) => {
     method: 'get',
     url: newURL,
   }).then((response) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(response.data, 'text/xml');
-    console.log(doc);
     state.form.processState = 'sending';
-    const title = doc.querySelector('title').textContent;
-    const description = doc.querySelector('description').textContent;
-    const items = doc.querySelectorAll('item');
+    const [newFeed, items] = parser(response.data, state.form.url);
+    const indexOfUrl = state.feeds.findIndex(({ url }) => url === state.form.url);
+    const feedsLength = state.feeds.length;
+    if (indexOfUrl < 0) {
+      state.feeds = [...state.feeds, newFeed];
+    }
     const posts = [];
+    const id = (indexOfUrl < 0) ? feedsLength : indexOfUrl;
     items.forEach((item) => {
-      console.log(item);
       const link = item.querySelector('link').textContent;
       const itemTitle = item.querySelector('title').textContent;
-      posts.push({ link, title: itemTitle });
+      posts.push({ link, title: itemTitle, id });
     });
-    if (!isUrlAdded(state.form.url, state.feeds)) {
-      state.posts = [...state.posts, ...posts];
-      state.feeds = [...state.feeds, { title, description, url: state.form.url }];
-    } else {
-      const indexOfFeed = state.feeds.findIndex(({ url }) => url === state.form.url);
-      const diff = differenceBy(posts, state.posts[indexOfFeed], 'link');
-      state.posts[indexOfFeed] = [...state.posts[indexOfFeed], ...diff];
-    }
+    const addedPostsFromSameUrl = state.posts.filter((post) => post.id === id);
+    const diffInPosts = differenceBy(posts, addedPostsFromSameUrl, 'link');
+    state.posts = [...diffInPosts, ...state.posts];
   }).catch((err) => {
     console.log('error here');
     console.log(err);

@@ -1,19 +1,26 @@
+/* eslint-disable no-param-reassign */
 import onChange from 'on-change';
-import { rendorPosts, rendorErrors } from './renders';
+import { renderPosts, renderErrors, renderProcessState } from './renders';
 
-const formWatcher = (form, state) => {
+const formWatcher = (state, i18next) => {
   const watch = onChange(state, (path) => {
     if (path === 'form.errors') {
-      rendorErrors(form, state.form.errors);
+      renderErrors(state.form.errors, i18next);
+    } else if (path === 'form.processState') {
+      console.log(state.form.processState);
+      renderProcessState(state, i18next);
     }
   });
+  console.log(watch.form.processState);
   return watch;
 };
 
-const postWatcher = (state) => {
+const postWatcher = (state, i18next) => {
   const watchPosts = onChange(state, (path) => {
     if (path === 'posts') {
-      rendorPosts(state.posts);
+      renderPosts(state.posts);
+    } else if (path === 'form.errors') {
+      renderErrors(state.form.errors, i18next);
     }
   });
   return watchPosts;

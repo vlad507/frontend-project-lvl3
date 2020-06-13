@@ -3,7 +3,7 @@ import axios from 'axios';
 import { differenceBy } from 'lodash';
 
 const cors = 'https://cors-anywhere.herokuapp.com';
-const updatePostsTimeout = 30000;
+const updatePostsTimeout = 5000;
 
 const parser = (responseData, url) => {
   const domParser = new DOMParser();

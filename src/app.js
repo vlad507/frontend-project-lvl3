@@ -48,17 +48,17 @@ const app = () => {
       resources,
     },
   );
-  const watchedState = formWatcher(state, i18next);
+  const watchedForm = formWatcher(state, i18next);
   const watchedPosts = postWatcher(state, i18next);
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const url = formData.get('url');
     state.form.url = url;
-    updateValodationOfUrl(watchedState);
+    updateValodationOfUrl(watchedForm);
     if (state.form.validOfForm) {
-      watchedState.form.processState = 'sending';
-      handlerRSS(watchedPosts, watchedState, i18next);
+      watchedForm.form.processState = 'sending';
+      handlerRSS(watchedPosts, watchedForm, i18next);
     }
   });
 

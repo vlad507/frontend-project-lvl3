@@ -3,6 +3,7 @@ import axios from 'axios';
 import { differenceBy } from 'lodash';
 
 const cors = 'https://cors-anywhere.herokuapp.com';
+const updatePostsTimeout = 30000;
 
 const parser = (responseData, url) => {
   const domParser = new DOMParser();
@@ -26,7 +27,6 @@ const getPosts = (items, id) => {
 const updatePosts = (state) => {
   state.feeds.forEach((feed) => {
     const newURL = new URL(`/${feed.url}`, cors);
-    console.log(feed.url);
     axios({
       method: 'get',
       url: newURL,
@@ -36,25 +36,21 @@ const updatePosts = (state) => {
       const id = indexOfUrl;
       const posts = getPosts(items, id);
       const addedPostsFromSameUrl = state.posts.filter((post) => post.id === id);
-      console.log(`added:${addedPostsFromSameUrl}`);
       const diffInPosts = differenceBy(posts, addedPostsFromSameUrl, 'link');
-      console.log(diffInPosts);
       state.posts = [...diffInPosts, ...state.posts];
-      console.log(state.posts);
     }).catch((err) => {
       state.form.errors = err.toJSON().message;
     });
   });
 
-  setTimeout(() => updatePosts(state), 30000);
+  setTimeout(() => updatePosts(state), updatePostsTimeout);
 };
 
-const handlerRSS = (state, formState) => {
+const handlerRSS = (state, formState, i18next) => {
   const indexOfUrl = state.feeds.findIndex(({ url }) => url === state.form.url);
-  console.log(state.feeds);
-  console.log(indexOfUrl);
   if (indexOfUrl >= 0) {
-    state.form.errors = 'This url already added';
+    state.form.errors = i18next.t('request.alreadyAdded');
+    formState.form.processState = 'filling';
     return;
   }
   const newURL = new URL(`/${state.form.url}`, cors);
@@ -67,7 +63,6 @@ const handlerRSS = (state, formState) => {
     state.feeds = [...state.feeds, newFeed];
     const posts = getPosts(items, id);
     state.posts = [...posts, ...state.posts];
-    console.log(state.posts);
   }).then(() => {
     formState.form.processState = 'finished';
     formState.form.processState = 'filling';

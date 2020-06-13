@@ -4,7 +4,6 @@ import { isEqual } from 'lodash';
 const renderPosts = (posts) => {
   const rssPostsElement = document.querySelector('.rss-links');
   rssPostsElement.innerHTML = '';
-  console.log(posts);
   posts.forEach((post) => {
     const postElement = document.createElement('div');
     const postLink = document.createElement('a');
@@ -59,7 +58,6 @@ const renderProcessState = (state, i18next) => {
     default:
       throw new Error(`Unknown state: ${processState}`);
   }
-  console.log(button);
 };
 
 export { renderPosts, renderErrors, renderProcessState };

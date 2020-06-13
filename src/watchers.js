@@ -7,11 +7,9 @@ const formWatcher = (state, i18next) => {
     if (path === 'form.errors') {
       renderErrors(state.form.errors, i18next);
     } else if (path === 'form.processState') {
-      console.log(state.form.processState);
       renderProcessState(state, i18next);
     }
   });
-  console.log(watch.form.processState);
   return watch;
 };
 

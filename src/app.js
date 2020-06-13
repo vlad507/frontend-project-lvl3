@@ -58,7 +58,7 @@ const app = () => {
     updateValodationOfUrl(watchedState);
     if (state.form.validOfForm) {
       watchedState.form.processState = 'sending';
-      handlerRSS(watchedPosts, watchedState);
+      handlerRSS(watchedPosts, watchedState, i18next);
     }
   });
 

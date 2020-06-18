@@ -1,18 +1,11 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
 import { differenceBy } from 'lodash';
+import * as yup from 'yup';
+import parse from './parser';
 
 const cors = 'https://cors-anywhere.herokuapp.com';
 const updatePostsTimeout = 5000;
-
-const parser = (responseData, url) => {
-  const domParser = new DOMParser();
-  const doc = domParser.parseFromString(responseData, 'text/xml');
-  const title = doc.querySelector('title').textContent;
-  const description = doc.querySelector('description').textContent;
-  const items = doc.querySelectorAll('item');
-  return [{ title, description, url }, items];
-};
 
 const getPosts = (items, id) => {
   const posts = [];
@@ -31,7 +24,7 @@ const updatePosts = (state) => {
       method: 'get',
       url: newURL,
     }).then((response) => {
-      const [, items] = parser(response.data, feed.url);
+      const [, items] = parse(response.data, feed.url);
       const indexOfUrl = state.feeds.findIndex(({ url }) => url === feed.url);
       const id = indexOfUrl;
       const posts = getPosts(items, id);
@@ -46,11 +39,14 @@ const updatePosts = (state) => {
   setTimeout(() => updatePosts(state), updatePostsTimeout);
 };
 
-const handlerRSS = (state, formState, i18next) => {
-  const indexOfUrl = state.feeds.findIndex(({ url }) => url === state.form.url);
-  if (indexOfUrl >= 0) {
+const handlerRSS = (state, i18next) => {
+  const feedsUrl = state.feeds.map(({ url }) => url);
+  const schema = yup.mixed().notOneOf(feedsUrl);
+  try {
+    schema.validateSync(state.form.url);
+  } catch (err) {
     state.form.errors = i18next.t('request.alreadyAdded');
-    formState.form.processState = 'filling';
+    state.form.processState = 'filling';
     return;
   }
   const newURL = new URL(`/${state.form.url}`, cors);
@@ -58,17 +54,17 @@ const handlerRSS = (state, formState, i18next) => {
     method: 'get',
     url: newURL,
   }).then((response) => {
-    const [newFeed, items] = parser(response.data, state.form.url);
+    const [newFeed, items] = parse(response.data, state.form.url);
     const id = state.feeds.length;
     state.feeds = [...state.feeds, newFeed];
     const posts = getPosts(items, id);
     state.posts = [...posts, ...state.posts];
   }).then(() => {
-    formState.form.processState = 'finished';
-    formState.form.processState = 'filling';
+    state.form.processState = 'finished';
+    state.form.processState = 'filling';
   }).catch((err) => {
-    state.form.errors = err.toJSON().message;
-    formState.form.processState = 'filling';
+    state.form.errors = err.message;
+    state.form.processState = 'filling';
   });
 };
 

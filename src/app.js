@@ -4,7 +4,7 @@ import { isEqual } from 'lodash';
 import i18next from 'i18next';
 import resources from './locales';
 import { updatePosts, handlerRSS } from './handler';
-import { formWatcher, postWatcher } from './watchers';
+import stateWatch from './watchers';
 
 const schema = yup.string().required().url();
 
@@ -17,13 +17,13 @@ const checkValidOfUrl = (url) => {
   }
 };
 
-const updateValodationOfUrl = (state) => {
+const updateValidationState = (state) => {
   const errors = checkValidOfUrl(state.form.url);
   if (isEqual(errors, {})) {
-    state.form.validOfForm = true;
+    state.form.valid = true;
     state.form.errors = {};
   } else {
-    state.form.validOfForm = false;
+    state.form.valid = false;
     state.form.errors = errors;
   }
 };
@@ -33,7 +33,7 @@ const app = () => {
     form: {
       url: null,
       processState: 'filling',
-      validOfForm: true,
+      valid: true,
       errors: {},
     },
     feeds: [],
@@ -48,21 +48,20 @@ const app = () => {
       resources,
     },
   );
-  const watchedForm = formWatcher(state, i18next);
-  const watchedPosts = postWatcher(state, i18next);
+  const watchedState = stateWatch(state, i18next);
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const url = formData.get('url');
     state.form.url = url;
-    updateValodationOfUrl(watchedForm);
-    if (state.form.validOfForm) {
-      watchedForm.form.processState = 'sending';
-      handlerRSS(watchedPosts, watchedForm, i18next);
+    updateValidationState(watchedState);
+    if (state.form.valid) {
+      watchedState.form.processState = 'sending';
+      handlerRSS(watchedState, i18next);
     }
   });
 
-  updatePosts(watchedPosts);
+  updatePosts(watchedState);
 };
 
 export default app;

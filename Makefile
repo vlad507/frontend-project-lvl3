@@ -1,10 +1,10 @@
 develop:
-				npx webpack-dev-server
+	npx webpack-dev-server
 install:
-				npm install
+	npm install
 build:
-				npx webpack
+	npx webpack
 publish:
-				npm publish --dry-run
+	npm publish --dry-run
 lint:
-				npx eslint .
+	npx eslint .

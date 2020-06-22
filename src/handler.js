@@ -1,21 +1,11 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
-import { differenceBy } from 'lodash';
+import { differenceBy, uniqueId } from 'lodash';
 import * as yup from 'yup';
 import parse from './parser';
 
 const cors = 'https://cors-anywhere.herokuapp.com';
 const updatePostsTimeout = 5000;
-
-const getPosts = (items, id) => {
-  const posts = [];
-  items.forEach((item) => {
-    const link = item.querySelector('link').textContent;
-    const itemTitle = item.querySelector('title').textContent;
-    posts.push({ link, title: itemTitle, id });
-  });
-  return posts;
-};
 
 const updatePosts = (state) => {
   state.feeds.forEach((feed) => {
@@ -24,15 +14,14 @@ const updatePosts = (state) => {
       method: 'get',
       url: newURL,
     }).then((response) => {
-      const [, items] = parse(response.data, feed.url);
-      const indexOfUrl = state.feeds.findIndex(({ url }) => url === feed.url);
-      const id = indexOfUrl;
-      const posts = getPosts(items, id);
+      const { items } = parse(response.data);
+      const { id } = feed;
+      const posts = items.map((item) => ({ ...item, id }));
       const addedPostsFromSameUrl = state.posts.filter((post) => post.id === id);
       const diffInPosts = differenceBy(posts, addedPostsFromSameUrl, 'link');
       state.posts = [...diffInPosts, ...state.posts];
     }).catch((err) => {
-      state.form.errors = err.toJSON().message;
+      state.form.errors = err.inner[0].message;
     });
   });
 
@@ -50,18 +39,24 @@ const handlerRSS = (state, i18next) => {
     return;
   }
   const newURL = new URL(`/${state.form.url}`, cors);
+  state.form.processState = 'sending';
   axios({
     method: 'get',
     url: newURL,
   }).then((response) => {
-    const [newFeed, items] = parse(response.data, state.form.url);
-    const id = state.feeds.length;
+    const id = uniqueId();
+    const { title, description, items } = parse(response.data);
+    const newFeed = {
+      title,
+      description,
+      url: state.form.url,
+      id,
+    };
     state.feeds = [...state.feeds, newFeed];
-    const posts = getPosts(items, id);
+    const posts = items.map((item) => ({ ...item, id }));
     state.posts = [...posts, ...state.posts];
   }).then(() => {
     state.form.processState = 'finished';
-    state.form.processState = 'filling';
   }).catch((err) => {
     state.form.errors = err.message;
     state.form.processState = 'filling';

@@ -56,7 +56,6 @@ const app = () => {
     state.form.url = url;
     updateValidationState(watchedState);
     if (state.form.valid) {
-      watchedState.form.processState = 'sending';
       handlerRSS(watchedState, i18next);
     }
   });

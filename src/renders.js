@@ -49,6 +49,8 @@ const renderProcessState = (state, i18next) => {
       break;
     case 'finished':
       inputElement.value = '';
+      button.disabled = false;
+      inputElement.disabled = false;
       if (isEqual(state.form.errors, {})) {
         errorMessageElement.classList.add('feedback', 'text-success');
         errorMessageElement.innerHTML = i18next.t('request.success');

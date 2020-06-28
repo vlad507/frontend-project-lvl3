@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { isEqual } from 'lodash';
+import i18next from 'i18next';
 
 const renderPosts = (posts) => {
   const rssPostsElement = document.querySelector('.rss-links');
@@ -14,7 +15,7 @@ const renderPosts = (posts) => {
   });
 };
 
-const renderErrors = (errors, i18next) => {
+const renderErrors = (errors) => {
   const formElement = document.querySelector('[data-form="rss-form"');
   const errorElement = formElement.nextElementSibling;
   const inputElement = formElement.firstChild;
@@ -28,11 +29,12 @@ const renderErrors = (errors, i18next) => {
   const errorMessageElement = document.createElement('div');
   errorMessageElement.classList.add('feedback', 'text-danger');
   inputElement.classList.add('is-invalid');
-  errorMessageElement.innerHTML = i18next.t('request.bad', { err: errors });
+  const errorMessage = errors.email ? i18next.t(errors.email) : errors;
+  errorMessageElement.innerHTML = i18next.t('request.bad', { err: errorMessage });
   formElement.after(errorMessageElement);
 };
 
-const renderProcessState = (state, i18next) => {
+const renderProcessState = (state) => {
   const button = document.querySelector('button');
   const formElement = document.querySelector('[data-form="rss-form"');
   const inputElement = formElement.firstChild;

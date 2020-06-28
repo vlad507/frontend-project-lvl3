@@ -19,7 +19,7 @@ const updatePosts = (state) => {
       const posts = items.map((item) => ({ ...item, id }));
       const addedPostsFromSameUrl = state.posts.filter((post) => post.id === id);
       const diffInPosts = differenceBy(posts, addedPostsFromSameUrl, 'link');
-      state.posts = [...diffInPosts, ...state.posts];
+      state.posts.unshift(...diffInPosts);
     }).catch((err) => {
       state.form.errors = err.inner[0].message;
     });
@@ -28,13 +28,13 @@ const updatePosts = (state) => {
   setTimeout(() => updatePosts(state), updatePostsTimeout);
 };
 
-const handlerRSS = (state, i18next) => {
+const handlerRSS = (state) => {
   const feedsUrl = state.feeds.map(({ url }) => url);
   const schema = yup.mixed().notOneOf(feedsUrl);
   try {
     schema.validateSync(state.form.url);
   } catch (err) {
-    state.form.errors = i18next.t('request.alreadyAdded');
+    state.form.errors = { email: 'request.alreadyAdded' };
     state.form.processState = 'filling';
     return;
   }
@@ -52,9 +52,9 @@ const handlerRSS = (state, i18next) => {
       url: state.form.url,
       id,
     };
-    state.feeds = [...state.feeds, newFeed];
+    state.feeds.unshift(newFeed);
     const posts = items.map((item) => ({ ...item, id }));
-    state.posts = [...posts, ...state.posts];
+    state.posts.unshift(...posts);
   }).then(() => {
     state.form.processState = 'finished';
   }).catch((err) => {

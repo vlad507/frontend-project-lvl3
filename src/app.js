@@ -48,7 +48,7 @@ const app = () => {
       resources,
     },
   );
-  const watchedState = stateWatch(state, i18next);
+  const watchedState = stateWatch(state);
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -56,7 +56,7 @@ const app = () => {
     state.form.url = url;
     updateValidationState(watchedState);
     if (state.form.valid) {
-      handlerRSS(watchedState, i18next);
+      handlerRSS(watchedState);
     }
   });
 

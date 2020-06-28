@@ -2,12 +2,12 @@
 import onChange from 'on-change';
 import { renderPosts, renderErrors, renderProcessState } from './renders';
 
-const stateWatch = (state, i18next) => {
+const stateWatch = (state) => {
   const watch = onChange(state, (path) => {
     if (path === 'form.errors') {
-      renderErrors(state.form.errors, i18next);
+      renderErrors(state.form.errors);
     } else if (path === 'form.processState') {
-      renderProcessState(state, i18next);
+      renderProcessState(state);
     } else if (path === 'posts') {
       renderPosts(state.posts);
     }
